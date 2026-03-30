@@ -1,3 +1,9 @@
+# VS Code
+.vscode/
+
+# JetBrains IDEs
+.idea/
+
 # Angular specific
 /dist/
 /out-tsc/

@@ -1,0 +1,19 @@
+{
+  "name": "shared-ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shop/shared-ui/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:shop", "type:ui"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/shop/shared-ui/**/*.ts",
+          "libs/shop/shared-ui/**/*.html"
+        ]
+      }
+    }
+  }
+}

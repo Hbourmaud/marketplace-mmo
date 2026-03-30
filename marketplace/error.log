@@ -1,0 +1,6 @@
+
+fatal: detected dubious ownership in repository at 'D:/project/marketplace-mmo/marketplace'
+'D:/project/marketplace-mmo/marketplace' is on a file system that does not record ownership
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory D:/project/marketplace-mmo/marketplace
