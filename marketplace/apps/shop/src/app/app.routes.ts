@@ -1,25 +1,14 @@
-import { Route } from '@angular/router';
+import { Routes } from '@angular/router';
+import { Home } from './components/home/home';
 
-export const appRoutes: Route[] = [
+export const appRoutes: Routes = [
   {
     path: '',
-    redirectTo: 'products',
+    redirectTo: 'home',
     pathMatch: 'full',
   },
   {
-    path: 'products',
-    loadChildren: () =>
-      import('@org/shop/feature-products').then(m => m.featureProductsRoutes),
-  },
-  {
-    path: 'products',
-    loadChildren: () =>
-      import('@org/shop/feature-product-detail').then(
-        m => m.featureProductDetailRoutes
-      ),
-  },
-  {
-    path: '**',
-    redirectTo: 'products',
+    path: 'home',
+    component: Home,
   },
 ];
