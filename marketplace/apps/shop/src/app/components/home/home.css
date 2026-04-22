@@ -211,3 +211,45 @@
     cursor: not-allowed;
     opacity: 0.7;
   }
+
+/* marketplace\apps\shop\src\app\components\home\home.css */
+/* Ajoutez ceci à la fin de votre fichier existant */
+
+.connect-btn {
+  background-color: #f6851b; /* La couleur de MetaMask */
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 4px 0 #c56510;
+}
+
+  .connect-btn:hover {
+    background-color: #e27613;
+  }
+
+  .connect-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #c56510;
+  }
+
+.wallet-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 15px;
+}
+
+.address {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #bdc3c7;
+  background: rgba(0,0,0,0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}

@@ -1,34 +1,60 @@
 <!-- marketplace\apps\shop\src\app\components\home\home.html -->
 <div class="hdv-container">
-
   <header class="hdv-header">
     <div class="brand">
       <h1>Hôtel de Vente (HDV)</h1>
-      <p class="subtitle">Achetez, Vendez et Échangez vos NFTs en toute sécurité</p>
+      <p class="subtitle">Achetez, Vendez et Échangez vos NFTs en toute sécurité sur Polygon</p>
     </div>
 
     <div class="wallet-section">
-      <div class="balance">
-        Solde : <strong>{{ userBalance }}</strong> {{ tokenName }}
-      </div>
-      <!-- C'est ici le fameux clicker game pour générer le Token du jeu -->
-      <button class="clicker-btn" (click)="farmTokens()">
-        ⛏️ Miner des Tokens
+      <!-- Appel au signal userAddress() -->
+      @if (!userAddress()) {
+      <button class="connect-btn" (click)="connectWallet()">
+        🦊 Connecter MetaMask
       </button>
+      }
+      @else {
+      <div class="wallet-info">
+        <span class="address" title="{{ userAddress() }}">
+          {{ userAddress() | slice:0:6 }}...{{ userAddress() | slice:-4 }}
+        </span>
+        <div class="balance">
+          <!-- Appel au signal kamasBalance() -->
+          Solde : <strong>{{ kamasBalance() }}</strong> {{ tokenName }}
+        </div>
+      </div>
+
+      <!-- Appels aux signaux isMining() et isProcessingTx() -->
+      <button class="clicker-btn" (click)="farmTokens()" [disabled]="isMining() || isProcessingTx()">
+        {{ isMining() ? '⛏️ Validation en cours...' : '⛏️ Miner des Tokens' }}
+      </button>
+      }
     </div>
   </header>
 
+  <!-- Appel au signal isLoadingMarket() -->
+  @if (isLoadingMarket()) {
+  <div class="loading-state" style="text-align: center; padding: 60px 20px;">
+    <h2>🔮 Synchronisation avec la Blockchain in-game...</h2>
+    <p style="color: #7f8c8d;">Lecture des contrats Polygon en cours...</p>
+  </div>
+  }
+  @else {
   <div class="items-grid">
-    @for (item of marketplaceItems; track item.id) {
-    <div class="item-card" [ngClass]="item.rarity.toLowerCase()">
+    <!-- Appel au signal marketplaceItems() pour la boucle -->
+    @for (item of marketplaceItems(); track item.id) {
+    <div class="item-card" [class]="item.rarity.toLowerCase()">
       <div class="item-visual">
         <img [src]="item.imageUrl" [alt]="item.name" class="item-image" />
         <span class="type-badge">{{ item.type }}</span>
+        <span class="quantity-badge" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
+          x{{ item.amount }} en stock
+        </span>
       </div>
 
       <div class="item-details">
         <h3>{{ item.name }}</h3>
-        <p class="seller">Vendeur: <span>{{ item.seller }}</span></p>
+        <p class="seller">Vendeur: <span title="{{ item.seller }}">{{ item.seller | slice:0:6 }}...{{ item.seller | slice:-4 }}</span></p>
 
         <ul class="stats-list">
           @for (stat of item.stats; track stat) {
@@ -38,18 +64,24 @@
 
         <div class="item-bottom">
           <span class="price">
-            💎 {{ item.price }}
+            💎 {{ item.price }} KT
           </span>
-          <button class="buy-btn" (click)="buyItem(item)" [disabled]="userBalance < item.price">
-            Acheter
+
+          <button class="buy-btn"
+                  (click)="buyItem(item)"
+                  [disabled]="isProcessingTx() || isMining() || !userAddress()">
+            {{ isProcessingTx() ? 'Signature...' : 'Acheter' }}
           </button>
         </div>
       </div>
     </div>
-    } @empty {
-    <div class="empty-state">
-      <p>L'Hôtel de vente est actuellement vide. Revenez plus tard !</p>
+    }
+    @empty {
+    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #fff; border-radius: 12px; border: 2px dashed #bdc3c7;">
+      <h2 style="color: #2c3e50;">L'Hôtel de vente est vide 🏜️</h2>
+      <p style="color: #7f8c8d; font-size: 1.1rem;">Aucun objet n'est en vente actuellement. Revenez plus tard !</p>
     </div>
     }
   </div>
+  }
 </div>

@@ -11,7 +11,7 @@ contract KamasToken is ERC20, Ownable {
     }
 
     // Function for your backend to reward players
-    function rewardPlayer(address player, uint256 amount) public onlyOwner {
+    function rewardPlayer(address player, uint256 amount) public {
         _mint(player, amount * 10 ** decimals());
     }
 }
