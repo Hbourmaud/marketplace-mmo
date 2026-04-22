@@ -1,1 +1,55 @@
-<p>home works!</p>
+<!-- marketplace\apps\shop\src\app\components\home\home.html -->
+<div class="hdv-container">
+
+  <header class="hdv-header">
+    <div class="brand">
+      <h1>Hôtel de Vente (HDV)</h1>
+      <p class="subtitle">Achetez, Vendez et Échangez vos NFTs en toute sécurité</p>
+    </div>
+
+    <div class="wallet-section">
+      <div class="balance">
+        Solde : <strong>{{ userBalance }}</strong> {{ tokenName }}
+      </div>
+      <!-- C'est ici le fameux clicker game pour générer le Token du jeu -->
+      <button class="clicker-btn" (click)="farmTokens()">
+        ⛏️ Miner des Tokens
+      </button>
+    </div>
+  </header>
+
+  <div class="items-grid">
+    @for (item of marketplaceItems; track item.id) {
+    <div class="item-card" [ngClass]="item.rarity.toLowerCase()">
+      <div class="item-visual">
+        <img [src]="item.imageUrl" [alt]="item.name" class="item-image" />
+        <span class="type-badge">{{ item.type }}</span>
+      </div>
+
+      <div class="item-details">
+        <h3>{{ item.name }}</h3>
+        <p class="seller">Vendeur: <span>{{ item.seller }}</span></p>
+
+        <ul class="stats-list">
+          @for (stat of item.stats; track stat) {
+          <li>{{ stat }}</li>
+          }
+        </ul>
+
+        <div class="item-bottom">
+          <span class="price">
+            💎 {{ item.price }}
+          </span>
+          <button class="buy-btn" (click)="buyItem(item)" [disabled]="userBalance < item.price">
+            Acheter
+          </button>
+        </div>
+      </div>
+    </div>
+    } @empty {
+    <div class="empty-state">
+      <p>L'Hôtel de vente est actuellement vide. Revenez plus tard !</p>
+    </div>
+    }
+  </div>
+</div>
