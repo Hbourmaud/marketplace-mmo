@@ -105,9 +105,9 @@ export class Web3Service {
       await tx.wait();
 
       // LOG ENHANCEMENT: Added sender (contract), receiver (user), amount and transaction hash
-      const sender = this.KAMAS_TOKEN_ADDRESS.substring(0, 6);
-      const receiver = this.accountSubject.value.substring(0, 6);
-      this.log(`[CLICKER] Confirmé ! De: ${sender}... | À: ${receiver}... | Montant: +${amount} KT | Hash: ${tx.hash}`, 'success');
+      const sender = this.KAMAS_TOKEN_ADDRESS.substring(0);
+      const receiver = this.accountSubject.value.substring(0);
+      this.log(`[CLICKER] Confirmé ! De: ${sender} | À: ${receiver}| Montant: +${amount} KT | Hash: ${tx.hash}`, 'success');
 
       return true;
     } catch (error: any) {
