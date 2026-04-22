@@ -1,4 +1,20 @@
 /* marketplace\apps\shop\src\app\components\home\home.css */
+
+/* Restructure the layout to make room for terminal */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto; /* Scroll normal pour les items */
+  padding-bottom: 20px;
+}
+
+/* KEEP YOUR EXISTING CSS HERE FOR CARDS, BUTTONS, ETC */
 .hdv-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -48,6 +64,16 @@
     color: #f1c40f;
   }
 
+.connect-btn {
+  background-color: #f6851b;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 .clicker-btn {
   background-color: #e67e22;
   color: white;
@@ -56,14 +82,7 @@
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 0 #d35400;
 }
-
-  .clicker-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0 0 0 #d35400;
-  }
 
 .items-grid {
   display: grid;
@@ -72,21 +91,14 @@
 }
 
 .item-card {
-  background: #ffffff;
+  background: #fff;
   border: 2px solid #bdc3c7;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
   display: flex;
   flex-direction: column;
 }
 
-  .item-card:hover {
-    transform: translateY(-5px);
-  }
-
-/* Rarity Borders */
 .commune {
   border-color: #95a5a6;
 }
@@ -101,7 +113,6 @@
 
 .légendaire {
   border-color: #f1c40f;
-  box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
 }
 
 .item-visual {
@@ -133,17 +144,28 @@
   font-weight: bold;
 }
 
+.quantity-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(46, 204, 113,0.9);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
 .item-details {
   padding: 20px;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  flex: 1;
 }
 
   .item-details h3 {
     margin: 0 0 5px 0;
     color: #2c3e50;
-    font-size: 1.2rem;
   }
 
 .seller {
@@ -151,13 +173,6 @@
   font-size: 0.85rem;
   margin-top: 0;
 }
-
-  .seller span {
-    font-family: monospace;
-    background: #eee;
-    padding: 2px 5px;
-    border-radius: 4px;
-  }
 
 .stats-list {
   list-style: none;
@@ -199,57 +214,101 @@
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s;
 }
 
-  .buy-btn:hover:not([disabled]) {
-    background-color: #27ae60;
-  }
-
-  .buy-btn[disabled] {
-    background-color: #bdc3c7;
+  .buy-btn:disabled {
+    background-color: #95a5a6;
     cursor: not-allowed;
-    opacity: 0.7;
   }
 
-/* marketplace\apps\shop\src\app\components\home\home.css */
-/* Ajoutez ceci à la fin de votre fichier existant */
-
-.connect-btn {
-  background-color: #f6851b; /* La couleur de MetaMask */
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-  box-shadow: 0 4px 0 #c56510;
+.loading-state, .empty-state {
+  text-align: center;
+  padding: 40px;
+  grid-column: 1 / -1;
 }
 
-  .connect-btn:hover {
-    background-color: #e27613;
-  }
+/* -------------------------------------- */
+/* LE TERMINAL WEB3 (Console en bas)      */
+/* -------------------------------------- */
 
-  .connect-btn:active {
-    transform: translateY(4px);
-    box-shadow: 0 0 0 #c56510;
-  }
-
-.wallet-info {
+.web3-terminal {
+  height: 220px;
+  background-color: #1e1e1e; /* Gris très foncé */
+  border-top: 3px solid #34495e;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  margin-right: 15px;
+  box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+  z-index: 100;
 }
 
-.address {
-  font-family: monospace;
-  font-size: 0.85rem;
+.terminal-header {
+  background-color: #2c3e50;
+  padding: 8px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #111;
+}
+
+.terminal-title {
   color: #bdc3c7;
-  background: rgba(0,0,0,0.3);
-  padding: 2px 6px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.clear-btn {
+  background: transparent;
+  border: 1px solid #7f8c8d;
+  color: #7f8c8d;
+  padding: 3px 10px;
   border-radius: 4px;
-  margin-bottom: 5px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+  .clear-btn:hover {
+    background: #7f8c8d;
+    color: #1e1e1e;
+  }
+
+.terminal-body {
+  flex: 1;
+  padding: 10px 15px;
+  overflow-y: auto;
+  font-family: 'Courier New', Courier, monospace; /* Police Hacker */
+  font-size: 0.9rem;
+  background-color: #0d1117; /* Fond VSCode/Terminal */
+  display: flex;
+  flex-direction: column-reverse; /* Nouveaux messages s'affichent en haut */
+}
+
+.log-entry {
+  padding: 4px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.05);
+  word-break: break-all;
+}
+
+.timestamp {
+  color: #7f8c8d;
+  margin-right: 10px;
+}
+
+/* Couleurs des logs comme dans une vraie console blockchain */
+.log-entry.info .message {
+  color: #3498db;
+}
+
+.log-entry.success .message {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+.log-entry.error .message {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.log-entry.tx .message {
+  color: #f1c40f;
 }

@@ -1,6 +1,6 @@
 // marketplace\apps\shop\src\app\components\home\home.ts
 
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Web3Service } from '../../services/web3.service';
 
@@ -17,6 +17,12 @@ export interface MmoItem {
   imageUrl: string;
 }
 
+export interface LogEntry {
+  time: string;
+  message: string;
+  type: 'info' | 'success' | 'error' | 'tx';
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -27,7 +33,7 @@ export interface MmoItem {
 export class Home implements OnInit {
   web3Service = inject(Web3Service);
 
-  // 🔴 CONVERSION TO SIGNALS 🔴
+  // States
   userAddress = signal<string | null>(null);
   kamasBalance = signal<string>('0');
 
@@ -37,21 +43,35 @@ export class Home implements OnInit {
 
   marketplaceItems = signal<MmoItem[]>([]);
 
+  // NOUVEAU: Le tableau de logs pour l'UI
+  appLogs = signal<LogEntry[]>([]);
+
   tokenName: string = 'KamasToken (KT)';
 
   private itemMetadata: Record<string, any> = {
-    '1': { name: 'Épée du Jugement', type: 'Arme', rarity: 'Légendaire', stats: ['+150 Force', '+20 Coups'], imageUrl: 'https://cdn-icons-png.flaticon.com/512/3782/3782006.png' },
+    '1': { name: 'Épée du Jugement', type: 'Arme', rarity: 'Légendaire', stats: ['+150 Force', '+20 Coups Critiques'], imageUrl: 'https://cdn-icons-png.flaticon.com/512/3782/3782006.png' },
     '2': { name: 'Bois de Chêne Magique', type: 'Ressource', rarity: 'Rare', stats: ['Ressource de craft', 'Vérifiée'], imageUrl: 'https://cdn-icons-png.flaticon.com/512/3781/3781985.png' },
-    '3': { name: 'Potion de Soin Mineure', type: 'Ressource', rarity: 'Commune', stats: ['Restaure 50 PV', 'Consommable'], imageUrl: 'https://cdn-icons-png.flaticon.com/512/8673/8673898.png' }
+    '3': { name: 'Potion de Soin Mineure', type: 'Ressource', rarity: 'Commune', stats: ['Restaure 50 PV'], imageUrl: 'https://cdn-icons-png.flaticon.com/512/8673/8673898.png' }
   };
 
   async ngOnInit() {
+    // Écoute les logs du Web3Service
+    this.web3Service.logs$.subscribe(log => {
+      const newLog = {
+        time: new Date().toLocaleTimeString(),
+        message: log.message,
+        type: log.type
+      };
+      // Garde les 50 derniers logs
+      this.appLogs.update(logs => [newLog, ...logs].slice(0, 50));
+    });
+
     this.web3Service.account$.subscribe(async (address) => {
-      this.userAddress.set(address); // Update Signal
+      this.userAddress.set(address);
       if (address) {
         await this.refreshBalance();
       } else {
-        this.kamasBalance.set('0'); // Update Signal
+        this.kamasBalance.set('0');
       }
     });
 
@@ -63,11 +83,10 @@ export class Home implements OnInit {
   }
 
   async refreshBalance() {
-    const address = this.userAddress();
-    if (address) {
-      const balance = await this.web3Service.getKamasBalance(address);
-      this.kamasBalance.set(balance); // Trigger UI update!
-    } // Ensure closure ends correctly here
+    if (this.userAddress()) {
+      const balance = await this.web3Service.getKamasBalance(this.userAddress()!);
+      this.kamasBalance.set(balance);
+    }
   }
 
   async farmTokens() {
@@ -77,18 +96,15 @@ export class Home implements OnInit {
     }
 
     const gain = Math.floor(Math.random() * (2000 - 500 + 1)) + 500;
+    this.isMining.set(true);
 
-    this.isMining.set(true); // Disable button immediately
     try {
       const success = await this.web3Service.mineTokens(gain);
       if (success) {
         await this.refreshBalance();
-        alert(`Vous avez miné ${gain} ${this.tokenName}.`);
       }
-    } catch (error) {
-      console.error(error);
     } finally {
-      this.isMining.set(false); // Re-enable button
+      this.isMining.set(false);
     }
   }
 
@@ -99,7 +115,7 @@ export class Home implements OnInit {
 
       const hydratedItems = activeListings.map(listing => {
         const meta = this.itemMetadata[listing.itemId] || {
-          name: 'Objet Inconnu', type: 'Ressource', rarity: 'Commune', stats: [], imageUrl: 'https://via.placeholder.com/150'
+          name: 'Objet Inconnu', type: 'Ressource', rarity: 'Commune', stats: [], imageUrl: 'https://cdn-icons-png.flaticon.com/512/1030/1030005.png'
         };
 
         return {
@@ -112,11 +128,7 @@ export class Home implements OnInit {
         };
       });
 
-      // Update array via Signal, telling Angular exactly what changed visually
       this.marketplaceItems.set(hydratedItems);
-
-    } catch (error) {
-      console.error(error);
     } finally {
       this.isLoadingMarket.set(false);
     }
@@ -126,27 +138,24 @@ export class Home implements OnInit {
     if (!this.userAddress()) return;
 
     if (Number(this.kamasBalance()) < item.price) {
-      alert(`Fonds insuffisants ! Il vous faut ${item.price} KT.`);
+      alert(`Fonds insuffisants ! Utilisez le clicker.`);
       return;
     }
 
-    if (!confirm(`Acheter 1x ${item.name} pour ${item.price} KT ? (2 signatures)`)) return;
-
-    this.isProcessingTx.set(true); // Disable Buy buttons
-
+    this.isProcessingTx.set(true);
     try {
       const success = await this.web3Service.buyMarketplaceItem(Number(item.id), item.price, 1);
-
       if (success) {
-        alert(`Achat réussi !`);
-        // Refresh exactly what changed!
         await this.loadMarketplaceItems();
         await this.refreshBalance();
       }
-    } catch (error) {
-      console.error(error);
     } finally {
-      this.isProcessingTx.set(false); // Re-enable buttons
+      this.isProcessingTx.set(false);
     }
+  }
+
+  // Vide la fenêtre de logs
+  clearLogs() {
+    this.appLogs.set([]);
   }
 }
